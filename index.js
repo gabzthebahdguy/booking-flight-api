@@ -30,35 +30,60 @@ app.post("/users", (req,res)=>{ //adding a new flight
 app.get("/users/:name", (req,res)=>{ //finding single user
   var input = req.params.name;
   var name = input.toLowerCase();
-  var foundUser = users.find(user =>{
+  var foundUser = users.find(user =>{ //this will find the users location in the array
     if( String(user.name).toLowerCase() === name){
-      return user.name;
-    } else{
-      res.status(404).send("Cannot find user... Please check name and try again")
+      return user.name; //this will return the object 
     }
   })
 
-  res.status(200).send(foundUser);
-  
-  
+  res.status(200).json(foundUser);
+
 })
 
 
-app.get("/deleteUsers/:name", (req,res)=>{
+app.get("/deleteUser/:name", (req,res)=>{
   var input = req.params.name;
   var name = input.toLowerCase();
   var location;
-  var deleteUser = users.find(user =>{
+  users.find(user =>{ //this will find the users location in the array
     if( String(user.name).toLowerCase() === name){
-      location = users.indexOf(user)
-      return user.name; 
-    } else{
-      res.status(404).send("Cannot find user... Please check name and try again")
+      location = users.indexOf(user); //this will return the index of the object 
+    }   
+  })
+  
+  users.splice(location,1);// this deletes the object in the array
+  var newUser = JSON.stringify(users, null, 2); // needs to be a stringed data to save
+  fs.writeFile("./users.json", newUser, (err)=>{ // This will take the edited cashed data and store it in the main file
+    if(err){
+      res.status(500).send("Internal error, Please try again")
+    }else{
+      res.status(200).send("User deleted successfully")
     }
   })
+  
 
-  console.log(location);
+})
 
+app.post("/editUser/:name", (req,res)=>{ //edits a particular user
+  var input = req.params.name;
+  var body = req.body;
+  var name = input.toLowerCase();
+  var location;
+  users.find(user =>{ //this will find the users location in the array
+    if( String(user.name).toLowerCase() === name){
+      location = users.indexOf(user); //this will return the index of the object 
+    }   
+  })
+  users.splice(location,1,body);
+  var newUser = JSON.stringify(users, null, 2); // needs to be a stringed data to save
+  fs.writeFile("./users.json", newUser, (err)=>{ // This will take the edited cashed data and store it in the main file
+    if(err){
+      res.status(500).send("Internal error, Please try again")
+    }else{
+      res.status(200).send("User updated successfully")
+    }
+  })
+  
 })
 
 
